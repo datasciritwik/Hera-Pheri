@@ -1,0 +1,15 @@
+#app-grid {
+    overflow: hidden;
+}
+
+#log_view {
+    height: 1fr; /* Takes up all available vertical space */
+    width: 100%;
+    margin-bottom: 1;
+}
+
+#task_input {
+    width: 100%;
+    height: 3;
+    padding: 0 1;
+}

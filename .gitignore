@@ -8,3 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
+main copy.py
+data/
+.env
