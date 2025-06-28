@@ -1,0 +1,8 @@
+textual
+rich
+langchain-core
+langchain-community
+langchain-groq
+langchain-tavily
+python-dotenv
+duckdb
