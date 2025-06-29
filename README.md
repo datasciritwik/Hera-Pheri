@@ -128,7 +128,7 @@ Hera-Pheri/
 Execute the main agent script from your terminal:
 
 ```sh
-python hera_pheri_crew.py
+python cli.py
 ```
 
 You will see the agents interacting in the console as they work to complete the task defined inside the script.
