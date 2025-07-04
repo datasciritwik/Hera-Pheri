@@ -180,8 +180,7 @@ class HeraPheriCLI:
         if not any(self._check_provider_config(p) for p in LLMFactory.get_available_providers()):
             self.console.print("❌ No LLM providers configured. Please set up API keys in .env file.", style="red")
             return
-        self.display_llm_providers()
-        self.switch_llm_provider()
+        
         self.start_new_session()
         
         
@@ -230,7 +229,11 @@ class HeraPheriCLI:
 def main(provider, model, session):
     """Run the HeraPheri CLI."""
     from config.settings import Settings  # Delay import if needed
+    import os
     settings = Settings()
+    
+    os.environ["TAVILY_API_KEY"] = settings.TAVILY_API_KEY
+    os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
 
     cli = HeraPheriCLI()
     
@@ -246,3 +249,6 @@ def main(provider, model, session):
         )
     
     cli.run()
+    
+if __name__ == "__main__":
+    main()

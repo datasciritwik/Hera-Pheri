@@ -1,6 +1,6 @@
 from agents.tool import web_search
 from pydantic import BaseModel
-from typing import Type, Optional
+from typing import Type
 
 class ShyamNodeToolInput(BaseModel):
     """Input for the ShyamNodeTool."""
