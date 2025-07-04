@@ -44,7 +44,6 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Natural Language :: English",
         "Environment :: Console",
-        "Framework :: Langgraph",
     ],
     python_requires='>=3.10',
 )

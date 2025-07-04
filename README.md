@@ -4,6 +4,12 @@
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/Built%20with-LangGraph-f06925)](https://github.com/langchain-ai/langgraph)
 
+
+<h3 align="center">
+  <code>pip install herapheri</code>
+</h3>
+
+
 An experimental autonomous AI agent system built with LangGraph that plans, writes, reviews, and executes code to complete complex tasks. The system is inspired by the iconic characters from the movie *Hera Pheri*, with each agent embodying a unique persona and role.
 
 -   **Shyam:** The meticulous planner and reviewer.
@@ -42,6 +48,7 @@ graph TD
     
     CheckTasks -- No --> End([Project Complete])
 ```
+
 ## Folder Structure
 
 ```
@@ -81,15 +88,20 @@ graph TD
 **Framework:** LangGraph
 
 **Clone the repository:**
-    ```sh
-    git clone https://github.com/datasciritwik/Hera-Pheri.git
-    cd Hera-Pheri
-    ```
+```sh
+git clone https://github.com/datasciritwik/Hera-Pheri.git
+cd Hera-Pheri
+```
 
-    ```
-    pip install -e .
-    ```
+``` sh
+pip install -e .
+```
 
+## Using API
+
+```sh
+herapheri --provider <LLM PROVIDER NAME> --model <MODEL NAME>
+```
 ## ⚠️ Security Warning
 
 This project uses an AI agent (`Babu Bhaiya`) that can **execute arbitrary terminal commands**. This is extremely powerful and potentially dangerous. It can modify your file system, access sensitive information, and interact with the internet.
