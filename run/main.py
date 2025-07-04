@@ -7,18 +7,18 @@ from rich.prompt import Prompt, Confirm
 from agents.graph import HeraPheriGraph
 from database.storage import ConversationStorage
 from llms.factory import LLMFactory
-from config.settings import settings
 
 console = Console()
 
 class HeraPheriCLI:
-    def __init__(self):
+    def __init__(self, settings_instance):
         self.console = Console()
         self.storage = ConversationStorage()
         self.current_session_id = None
         self.current_agent = None
-        self.current_llm_provider = settings.DEFAULT_LLM_PROVIDER
-        self.current_model = settings.DEFAULT_MODEL
+        self.settings = settings_instance  # Use the passed settings instance
+        self.current_llm_provider = settings_instance.DEFAULT_LLM_PROVIDER
+        self.current_model = settings_instance.DEFAULT_MODEL
         
     def display_welcome(self):
         """Display the welcome message and instructions."""
@@ -54,10 +54,10 @@ class HeraPheriCLI:
     def _check_provider_config(self, provider: str) -> bool:
         """Check if provider is properly configured"""
         config_map = {
-            "openai": settings.OPENAI_API_KEY,
-            "anthropic": settings.ANTHROPIC_API_KEY,
-            "google": settings.GOOGLE_API_KEY,
-            "groq": settings.GROQ_API_KEY
+            "openai": self.settings.OPENAI_API_KEY,
+            "anthropic": self.settings.ANTHROPIC_API_KEY,
+            "google": self.settings.GOOGLE_API_KEY,
+            "groq": self.settings.GROQ_API_KEY
         }
         return bool(config_map.get(provider))
     
@@ -156,7 +156,7 @@ class HeraPheriCLI:
         
         self.console.print(Panel(agent_list, title="Available Agents", expand=False, border_style="blue"))
         
-    def process_message(self, user_input:str):
+    def process_message(self, user_input: str):
         """Process user message through the agent"""
         if not self.current_agent:
             self.start_new_session()
@@ -176,13 +176,12 @@ class HeraPheriCLI:
         """Main loop to run the CLI"""
         self.display_welcome()
         
-        # Check if any LLM provider is configured
+        # Check if any LLM provider is configured - using the instance settings
         if not any(self._check_provider_config(p) for p in LLMFactory.get_available_providers()):
             self.console.print("❌ No LLM providers configured. Please set up API keys in .env file.", style="red")
             return
         
         self.start_new_session()
-        
         
         while True:
             try:
@@ -228,18 +227,30 @@ class HeraPheriCLI:
 @click.option("--session", default=None, help="Session ID to load")
 def main(provider, model, session):
     """Run the HeraPheri CLI."""
-    from config.settings import Settings  # Delay import if needed
+    from config.settings import Settings  # Import here to avoid circular imports
     import os
-    Settings()
     
-    os.environ["TAVILY_API_KEY"] = settings.TAVILY_API_KEY
-    os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
-
-    cli = HeraPheriCLI()
+    # Create settings instance (this will prompt for keys if missing)
+    settings_instance = Settings()
+    
+    # Set environment variables
+    os.environ["TAVILY_API_KEY"] = settings_instance.TAVILY_API_KEY
+     # Set all LLM provider API keys
+    if settings_instance.OPENAI_API_KEY:
+        os.environ["OPENAI_API_KEY"] = settings_instance.OPENAI_API_KEY
+    if settings_instance.ANTHROPIC_API_KEY:
+        os.environ["ANTHROPIC_API_KEY"] = settings_instance.ANTHROPIC_API_KEY
+    if settings_instance.GOOGLE_API_KEY:
+        os.environ["GOOGLE_API_KEY"] = settings_instance.GOOGLE_API_KEY
+    if settings_instance.GROQ_API_KEY:
+        os.environ["GROQ_API_KEY"] = settings_instance.GROQ_API_KEY
+    
+    # Pass the settings instance to CLI
+    cli = HeraPheriCLI(settings_instance)
     
     # Override if CLI args provided
-    cli.current_llm_provider = provider or settings.DEFAULT_LLM_PROVIDER
-    cli.current_model = model or settings.DEFAULT_MODEL
+    cli.current_llm_provider = provider or settings_instance.DEFAULT_LLM_PROVIDER
+    cli.current_model = model or settings_instance.DEFAULT_MODEL
     
     if session:
         cli.current_session_id = session
