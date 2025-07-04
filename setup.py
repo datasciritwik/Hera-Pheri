@@ -22,7 +22,7 @@ setup(
     
     entry_points={
         'console_scripts': [
-            'herapheri=main:main',
+            'herapheri=run.main:main',
         ],
     },
     
