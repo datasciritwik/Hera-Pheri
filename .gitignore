@@ -1,0 +1,12 @@
+.venv
+pyproject.toml
+.env
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+conversations.db
+notebooks/
+requirements-test.txt

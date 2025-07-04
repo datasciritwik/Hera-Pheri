@@ -1,0 +1,14 @@
+notebook
+langgraph
+langchain
+langchain-openai
+langchain-anthropic
+langchain-google-genai
+langchain-groq
+duckdb
+requests
+python-dotenv
+click
+rich
+langchain-core
+langchain-community
