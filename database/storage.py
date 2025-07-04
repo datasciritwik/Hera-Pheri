@@ -100,6 +100,44 @@ class ConversationStorage:
                 llm_provider=res[6]
             ))
         return convos
+    
+    def get_session_history(self, session_id: str) -> List[Conversation]:
+        """Get conversation history for a session"""
+        conn = duckdb.connect(self.db_path)
+        rows = conn.execute("""
+            SELECT * FROM conversations 
+            WHERE session_id = ? 
+            ORDER BY timestamp
+        """, [session_id]).fetchall()
+        conn.close()
+        
+        return [
+            Conversation(
+                id=row[0],
+                session_id=row[1],
+                user_message=row[2],
+                agent_response=row[3],
+                node_type=row[4],
+                llm_provider=row[5],
+                timestamp=row[6]
+            )
+            for row in rows
+        ]
+    
+    def get_all_sessions(self) -> List[str]:
+        """Get all unique session IDs, ordered by most recent activity"""
+        conn = duckdb.connect(self.db_path)
+        rows = conn.execute("""
+            SELECT session_id
+            FROM (
+                SELECT session_id, MAX(timestamp) as last_activity
+                FROM conversations
+                GROUP BY session_id
+            )
+            ORDER BY last_activity DESC
+        """).fetchall()
+        conn.close()
+        return [row[0] for row in rows]
 
     def append_message(self, convo_id: str, message: str):
         """Add a single message to the conversation’s message list."""

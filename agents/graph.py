@@ -213,10 +213,10 @@ class HeraPheriGraph(StateGraph):
             }
             
         
-    def process_input(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
+    def process_input(self, initial_state: str) -> Dict[str, Any]:
         """Process the initial input through the state graph."""
         initial_input = {
-            "task": initial_state.get("task", ""),
+            "task": initial_state,
             "session_id": self.session_id,
         }
         
