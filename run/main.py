@@ -163,7 +163,7 @@ class HeraPheriCLI:
             
         with self.console.status("[bold green]Processing..."):
             try:
-                result = self.current_agent.process_message(user_input)
+                result = self.current_agent.process_input(user_input)
                 
                 response_style = "green" if result.success else "red"
                 node_type = result.node_type if result.node_type else "Unknown"
