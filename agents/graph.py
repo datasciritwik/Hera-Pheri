@@ -197,7 +197,9 @@ class HeraPheriGraph(StateGraph):
         
         # Check if any completion phrases are in the output
         completion_phrases = ['all tasks are completed', 'end', 'sucessfully completed all the tasks']
-        output_lower = result['output'].lower()
+        # Fix: Access the output correctly from the result dictionary
+        output_text = result.get('output', '')
+        output_lower = output_text.lower()
         
         if any(phrase in output_lower for phrase in completion_phrases):
             return "END"
@@ -207,7 +209,7 @@ class HeraPheriGraph(StateGraph):
                 node_type="TaskPlannerNode",
                 messages=[
                     f"Input: {agent_state.agent_input}",
-                    f"Output: {result['output']}"
+                    f"Output: {output_text}"  # Use the extracted output_text
                 ],
                 llm_provider=self.llm_provider
             )
@@ -215,14 +217,14 @@ class HeraPheriGraph(StateGraph):
             
             # Update state for next node
             state.update({
-                "agent_input": result['output'],
-                "response": result['output'],
+                "agent_input": output_text,  # Use the extracted output_text
+                "response": output_text,     # Use the extracted output_text
                 "node_type": "TaskPlannerNode",
-                "success": result['success'],
+                "success": result.get('success', False),  # Use .get() for safety
             })
             
             return "__else__"
-            
+                
         
     def process_input(self, initial_state: str) -> Dict[str, Any]:
         """Process the initial input through the state graph."""

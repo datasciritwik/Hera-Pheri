@@ -7,6 +7,6 @@ build/
 dist/
 wheels/
 *.egg-info
-conversations.db
+conversation.db
 notebooks/
 requirements-test.txt

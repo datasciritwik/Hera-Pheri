@@ -5,7 +5,7 @@ with open("README.md", encoding='utf-8') as f:
 
 setup(
     name='herapheri',
-    version='0.1.0',
+    version='1.0.0',
     author='Ritwik Singh',
     packages=find_packages(),
     install_requires=[

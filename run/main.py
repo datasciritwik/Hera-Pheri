@@ -9,7 +9,7 @@ from database.storage import ConversationStorage
 from llms.factory import LLMFactory
 
 console = Console()
-
+VERSION = '1.0.0'
 class HeraPheriCLI:
     def __init__(self, settings_instance):
         self.console = Console()
@@ -22,11 +22,7 @@ class HeraPheriCLI:
         
     def display_welcome(self):
         """Display the welcome message and instructions."""
-        welcome_text = """
-        Welcome to HeraPheri CLI!
-        -------------------------
-        This is a command-line interface for interacting with HeraPheri agents.
-        
+        welcome_text = """This is a command-line interface for interacting with HeraPheri agents.
         Commands:
         • Type your message to chat
         - `/sessions`: View conversation history
@@ -36,7 +32,7 @@ class HeraPheriCLI:
         - `/exit`: Exit the CLI
         - `/help`: Show this help message
         """
-        self.console.print(Panel(welcome_text, title="Welcome to HeraPheri CLI", expand=False, border_style="blue"))
+        self.console.print(Panel(welcome_text, title=f"Welcome to HeraPheri CLI v{VERSION}", expand=False, border_style="blue"))
         
     def display_llm_providers(self):
         """Display available LLM providers"""
@@ -165,10 +161,16 @@ class HeraPheriCLI:
             try:
                 result = self.current_agent.process_input(user_input)
                 
-                response_style = "green" if result.success else "red"
-                node_type = result.node_type if result.node_type else "Unknown"
+                # Fix: Access dictionary keys instead of object attributes
+                success = result.get('success', False)
+                node_type = result.get('node_type', 'Unknown')
+                response = result.get('response', 'No response')
+                
+                response_style = "green" if success else "red"
+                
                 self.console.print(f"\n[{response_style}] Agent ({node_type}):[/{response_style}]")
-                self.console.print(Panel(result["response"], border_style=response_style))
+                self.console.print(Panel(response, border_style=response_style))
+                
             except Exception as e:
                 self.console.print(f"❌ Error: {str(e)}", style="red")
                 
@@ -221,7 +223,7 @@ class HeraPheriCLI:
                 self.console.print(f"❌ Unexpected error: {str(e)}", style="red")
                 
 @click.command()
-@click.version_option(version="1.0.0", message="HeraPheri CLI v%(version)s")
+@click.version_option(version="1.0.0", message="HeraPheri CLI v{version}")
 @click.option("--provider", default=None, help="LLM provider to use")
 @click.option("--model", default=None, help="LLM model to use")
 @click.option("--session", default=None, help="Session ID to load")
