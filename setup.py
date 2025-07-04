@@ -31,7 +31,6 @@ setup(
     
     author_email="officialritwik098@gmail.com",
     description="HeraPheri CLI - A command-line interface for interacting with various LLM providers.",
-    long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url="https://github.com/datasciritwik/hera-pheri/",
     classifiers=[
