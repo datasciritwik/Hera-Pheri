@@ -1,12 +1,13 @@
 from agents.tool import web_search
 from pydantic import BaseModel
+from langchain.tools import BaseTool
 from typing import Type
 
 class ShyamNodeToolInput(BaseModel):
     """Input for the ShyamNodeTool."""
     content: str
     
-class WebSearchTool(BaseModel):
+class WebSearchTool(BaseTool):
     name: str = "web_search"
     description: str = "Performs a web search to find relevant URLs and returns a formatted string of the top results. Use this to research topics, find documentation, or get code examples."
     args_schema: Type[BaseModel] = ShyamNodeToolInput

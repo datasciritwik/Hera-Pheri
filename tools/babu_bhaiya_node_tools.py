@@ -1,5 +1,6 @@
 from agents.tool import execute_terminal_command, change_directory, get_system_info, list_directory
 from pydantic import BaseModel
+from langchain.tools import BaseTool
 from typing import Type, Optional
 
 class BabuBhaiyaNodeToolInput(BaseModel):
@@ -10,7 +11,7 @@ class BabuBhaiyaNodeToolInput(BaseModel):
     capture_output: Optional[bool] = True
     shell: Optional[bool] = True
     
-class TerminalCmdNodeTool(BaseModel):
+class TerminalCmdNodeTool(BaseTool):
     name: str = "terminal_command"
     description: str = "Executes a terminal command and returns the output."
     args_schema: Type[BaseModel] = BabuBhaiyaNodeToolInput
@@ -39,7 +40,7 @@ class TerminalCmdNodeTool(BaseModel):
         return self._run(command, working_directory, timeout, capture_output, shell)
     
     
-class ChangeDirectoryNodeTool(BaseModel):
+class ChangeDirectoryNodeTool(BaseTool):
     name: str = "change_directory"
     description: str = "Changes the current working directory."
     args_schema: Type[BaseModel] = BabuBhaiyaNodeToolInput
@@ -59,7 +60,7 @@ class ChangeDirectoryNodeTool(BaseModel):
     async def _arun(self, working_directory: str) -> str:
         return self._run(working_directory)
     
-class SystemInfoNodeTool(BaseModel):
+class SystemInfoNodeTool(BaseTool):
     name: str = "system_info"
     description: str = "Retrieves system information."
     args_schema: Type[BaseModel] = BabuBhaiyaNodeToolInput

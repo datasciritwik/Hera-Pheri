@@ -1,5 +1,6 @@
 from agents.tool import load_markdown, save_markdown
 from pydantic import BaseModel
+from langchain.tools import BaseTool
 from typing import Optional, Type
 
 class TaskNodeToolInput(BaseModel):
@@ -7,7 +8,7 @@ class TaskNodeToolInput(BaseModel):
     query: Optional[str]
     filepath: str
 
-class LoadMarkdownTool(BaseModel):
+class LoadMarkdownTool(BaseTool):
     name: str = "load_markdown"
     description: str = "Loads a markdown file and returns its content."
     args_schema: Type[BaseModel] = TaskNodeToolInput
@@ -34,7 +35,7 @@ class LoadMarkdownTool(BaseModel):
     async def _arun(self, query: Optional[str] = None, filepath: str = "task.md") -> str:
         return self._run(query, filepath)
     
-class SaveMarkdownTool(BaseModel):
+class SaveMarkdownTool(BaseTool):
     name: str = "save_markdown"
     description: str = "Saves content to a markdown file."
     args_schema: Type[BaseModel] = TaskNodeToolInput

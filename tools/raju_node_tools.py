@@ -1,5 +1,6 @@
 from agents.tool import create_file, update_file
 from pydantic import BaseModel
+from langchain.tools import BaseTool
 from typing import Type, Optional
 
 class RajuNodeToolInput(BaseModel):
@@ -7,7 +8,7 @@ class RajuNodeToolInput(BaseModel):
     content: Optional[str] = None
     filepath: str
     
-class CreateFileTool(BaseModel):
+class CreateFileTool(BaseTool):
     name: str = "create_file"
     description: str = "Creates a file with the specified content."
     args_schema: Type[BaseModel] = RajuNodeToolInput
@@ -28,7 +29,7 @@ class CreateFileTool(BaseModel):
     async def _arun(self, filepath: str, content: str) -> str:
         return self._run(filepath, content)
     
-class UpdateFileTool(BaseModel):
+class UpdateFileTool(BaseTool):
     name: str = "update_file"
     description: str = "Updates a file with the specified content."
     args_schema: Type[BaseModel] = RajuNodeToolInput
