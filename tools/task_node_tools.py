@@ -5,7 +5,7 @@ from typing import Optional, Type
 class TaskNodeToolInput(BaseModel):
     """Input for the TaskNodeTool."""
     query: Optional[str]
-    filepath = str
+    filepath: str
 
 class LoadMarkdownTool(BaseModel):
     name: str = "load_markdown"
