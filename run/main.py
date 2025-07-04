@@ -224,25 +224,25 @@ class HeraPheriCLI:
                 
 @click.command()
 @click.version_option(version="1.0.0", message="HeraPheri CLI v%(version)s")
-@click.option("--provider", default=settings.DEFAULT_LLM_PROVIDER, help="LLM provider to use")
-@click.option("--model", default=settings.DEFAULT_MODEL, help="LLM model to use")
+@click.option("--provider", default=None, help="LLM provider to use")
+@click.option("--model", default=None, help="LLM model to use")
 @click.option("--session", default=None, help="Session ID to load")
 def main(provider, model, session):
     """Run the HeraPheri CLI."""
+    from config.settings import Settings  # Delay import if needed
+    settings = Settings()
+
     cli = HeraPheriCLI()
     
-    # Set initial provider and model
-    cli.current_llm_provider = provider
-    cli.current_model = model
+    # Override if CLI args provided
+    cli.current_llm_provider = provider or settings.DEFAULT_LLM_PROVIDER
+    cli.current_model = model or settings.DEFAULT_MODEL
     
     if session:
         cli.current_session_id = session
         cli.current_agent = HeraPheriGraph(
-            llm_provider=provider,
+            llm_provider=cli.current_llm_provider,
             session_id=session
         )
     
     cli.run()
-    
-if __name__ == "__main__":
-    main()
