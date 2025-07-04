@@ -17,6 +17,8 @@ setup(
     "langchain-groq>=0.3.4",
     "langchain-openai>=0.3.27",
     "langgraph>=0.5.0",
+    "langchain-community>=0.3.27",
+    "langchain-core>=0.3.67",
     "python-dotenv>=1.1.1",
     "requests>=2.32.4",
     "rich>=14.0.0",
