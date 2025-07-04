@@ -4,13 +4,13 @@ from langgraph.graph.message import add_messages
 
 class HeraPheriState:
     def __init__(self):
-        self.messages: Annotated[Sequence[BaseMessage], add_messages]
-        self.task: str
-        self.agent_input: str 
-        self.agent_output: str 
-        self.node_type: str 
-        self.llm_provider: str  = "groq"
-        self.session_id: str
+        self.messages: Annotated[Sequence[BaseMessage], add_messages] = []
+        self.task: str = ""
+        self.agent_input: str = ""
+        self.agent_output: str = ""
+        self.node_type: str = ""
+        self.llm_provider: str = "groq"
+        self.session_id: str = ""
         
         
 class Prompts:
@@ -57,7 +57,7 @@ class Prompts:
     ---
 
     # ✅ Acceptance Criteria
-    - <what “done” looks like for this sub-task>  
+    - <what "done" looks like for this sub-task>  
     - [ ] <first criterion>  
     - [ ] <second criterion>  
 
@@ -119,7 +119,7 @@ class Prompts:
 
     Instructions:
     1. Carefully review the error message, traceback, or output.
-    2. If you’re unsure about the cause, use the `websearch` tool to look up the error or find relevant documentation.
+    2. If you're unsure about the cause, use the `websearch` tool to look up the error or find relevant documentation.
     3. Clearly explain:
     - The most likely cause of the error.
     - Specific changes Raju should make to fix it.

@@ -42,7 +42,8 @@ class ConversationStorage:
 
     def update(self, convo: Conversation):
         """Overwrite an existing conversation (by id)."""
-        convo.updated_at = convo.updated_at
+        from datetime import datetime
+        convo.updated_at = datetime.now()
         self.conn.execute("""
         UPDATE conversations SET
             session_id = ?,
@@ -103,44 +104,41 @@ class ConversationStorage:
     
     def get_session_history(self, session_id: str) -> List[Conversation]:
         """Get conversation history for a session"""
-        conn = duckdb.connect(self.db_path)
-        rows = conn.execute("""
-            SELECT * FROM conversations 
+        rows = self.conn.execute("""
+            SELECT id, session_id, messages, created_at, updated_at, node_type, llm_provider
+            FROM conversations 
             WHERE session_id = ? 
-            ORDER BY timestamp
+            ORDER BY created_at
         """, [session_id]).fetchall()
-        conn.close()
         
-        return [
-            Conversation(
-                id=row[0],
-                session_id=row[1],
-                user_message=row[2],
-                agent_response=row[3],
-                node_type=row[4],
-                llm_provider=row[5],
-                timestamp=row[6]
-            )
-            for row in rows
-        ]
+        convos = []
+        for res in rows:
+            convos.append(Conversation(
+                id=res[0],
+                session_id=res[1],
+                messages=loads(res[2]),
+                created_at=res[3],
+                updated_at=res[4],
+                node_type=res[5],
+                llm_provider=res[6]
+            ))
+        return convos
     
     def get_all_sessions(self) -> List[str]:
         """Get all unique session IDs, ordered by most recent activity"""
-        conn = duckdb.connect(self.db_path)
-        rows = conn.execute("""
+        rows = self.conn.execute("""
             SELECT session_id
             FROM (
-                SELECT session_id, MAX(timestamp) as last_activity
+                SELECT session_id, MAX(updated_at) as last_activity
                 FROM conversations
                 GROUP BY session_id
             )
             ORDER BY last_activity DESC
         """).fetchall()
-        conn.close()
         return [row[0] for row in rows]
 
     def append_message(self, convo_id: str, message: str):
-        """Add a single message to the conversation’s message list."""
+        """Add a single message to the conversation's message list."""
         convo = self.get_by_id(convo_id)
         if not convo:
             raise KeyError(f"No conversation with id {convo_id}")
@@ -156,6 +154,5 @@ class ConversationStorage:
     def __enter__(self):
         return self
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-        

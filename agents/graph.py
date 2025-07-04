@@ -13,7 +13,7 @@ from agents.nodes import (
 )
 
 class HeraPheriGraph(StateGraph):
-    def __init__(self, llm_provider: str = "qroq", session_id: str = None):
+    def __init__(self, llm_provider: str = "groq", session_id: str = None):
         self.llm_provider = llm_provider
         self.session_id = session_id or uuid.uuid4().hex
         self.storage = ConversationStorage()
@@ -68,6 +68,7 @@ class HeraPheriGraph(StateGraph):
     def _planner_node_wrapper(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """Wrapper of planner node"""
         agent_state = HeraPheriState()
+        agent_state.task = state['task']
         agent_state.agent_input = state['task']
         agent_state.llm_provider = self.llm_provider
         agent_state.session_id = self.session_id
@@ -88,6 +89,7 @@ class HeraPheriGraph(StateGraph):
         
         return {
             **state,
+            "agent_input": result['output'],
             "response": result['output'],
             "node_type": "ShyamPlannerNode",
             "success": result['success'],
@@ -96,7 +98,7 @@ class HeraPheriGraph(StateGraph):
     def _raju_coder_node_wrapper(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """Wrapper for Raju Coder Node"""
         agent_state = HeraPheriState()
-        agent_state.agent_input = state['agent_input']
+        agent_state.agent_input = state.get('agent_input', '')
         agent_state.llm_provider = self.llm_provider
         agent_state.session_id = self.session_id
         
@@ -116,6 +118,7 @@ class HeraPheriGraph(StateGraph):
         
         return {
             **state,
+            "agent_input": result['output'],
             "response": result['output'],
             "node_type": "RajuCoderNode",
             "success": result['success'],
@@ -124,7 +127,7 @@ class HeraPheriGraph(StateGraph):
     def _shyam_reviewer_node_wrapper(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """Wrapper for Shyam Reviewer Node"""
         agent_state = HeraPheriState()
-        agent_state.agent_input = state['agent_input']
+        agent_state.agent_input = state.get('agent_input', '')
         agent_state.llm_provider = self.llm_provider
         agent_state.session_id = self.session_id
         
@@ -144,6 +147,7 @@ class HeraPheriGraph(StateGraph):
         
         return {
             **state,
+            "agent_input": result['output'],
             "response": result['output'],
             "node_type": "ShyamReviewerNode",
             "success": result['success'],
@@ -152,7 +156,7 @@ class HeraPheriGraph(StateGraph):
     def _babu_bhaiya_node_wrapper(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """Wrapper for Babu Bhaiya Node"""
         agent_state = HeraPheriState()
-        agent_state.agent_input = state['agent_input']
+        agent_state.agent_input = state.get('agent_input', '')
         agent_state.llm_provider = self.llm_provider
         agent_state.session_id = self.session_id
         
@@ -172,6 +176,7 @@ class HeraPheriGraph(StateGraph):
         
         return {
             **state,
+            "agent_input": result['output'],
             "response": result['output'],
             "node_type": "BabuBhiyaNode",
             "success": result['success'],
@@ -181,36 +186,42 @@ class HeraPheriGraph(StateGraph):
         """Route based on Babu Bhaiya node success/failure"""
         return "Success" if state.get('success', False) else "Error"
         
-    def _task_remaining_node(self, state: Dict[str, Any]) -> Literal["Next Step", "END"]:
+    def _task_remaining_node(self, state: Dict[str, Any]) -> Literal["__else__", "END"]:
         """Determine if there are more tasks remaining."""
         agent_state = HeraPheriState()
-        agent_state.agent_input = state['agent_input']
+        agent_state.agent_input = state.get('agent_input', '')
         agent_state.llm_provider = self.llm_provider
         agent_state.session_id = self.session_id
         
         result = self.task_planner_node.process(agent_state)
         
-        if ['all tasks are completed', 'end', 'sucessfully completed all the tasks'] in result['output'].lower():
+        # Check if any completion phrases are in the output
+        completion_phrases = ['all tasks are completed', 'end', 'sucessfully completed all the tasks']
+        output_lower = result['output'].lower()
+        
+        if any(phrase in output_lower for phrase in completion_phrases):
             return "END"
         else:
             conversation = Conversation(
                 session_id=self.session_id,
                 node_type="TaskPlannerNode",
                 messages=[
-                f"Input: {agent_state.agent_input}",
-                f"Output: {result['output']}"
-            ],
+                    f"Input: {agent_state.agent_input}",
+                    f"Output: {result['output']}"
+                ],
                 llm_provider=self.llm_provider
             )
             self.storage.create(conversation)
             
-            return {
-                **state,
+            # Update state for next node
+            state.update({
+                "agent_input": result['output'],
                 "response": result['output'],
                 "node_type": "TaskPlannerNode",
                 "success": result['success'],
-                "__else__": "Raju coder",
-            }
+            })
+            
+            return "__else__"
             
         
     def process_input(self, initial_state: str) -> Dict[str, Any]:
