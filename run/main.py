@@ -230,7 +230,7 @@ def main(provider, model, session):
     """Run the HeraPheri CLI."""
     from config.settings import Settings  # Delay import if needed
     import os
-    settings = Settings()
+    Settings()
     
     os.environ["TAVILY_API_KEY"] = settings.TAVILY_API_KEY
     os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
